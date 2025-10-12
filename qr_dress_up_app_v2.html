@@ -326,21 +326,21 @@
     <script>
         // Datos de ejemplo para personajes y ropa
         const characters = {
-            "CHAR001": {
-                id: "CHAR001",
+            "P1": {
+                id: "P1",
                 name: "Luna",
                 size: "S",
-                preferences: ["arte", "música", "naturaleza"],
-                baseImage: "https://placehold.co/300x400/FFB6C1/000000?text=Luna+(S)",
-                validClothes: ["CLOTH001", "CLOTH003", "CLOTH005"]
+                preferences: ["marron", "rojo", "casual"],
+                baseImage: "images/P1_base.png",
+                validClothes: ["camiseta_01", "camiseta_02", "falda_01", "falda_02","vestido_01"]
             },
-            "CHAR002": {
-                id: "CHAR002",
+            "P2": {
+                id: "P2",
                 name: "Sol",
                 size: "M",
-                preferences: ["deportes", "aventura", "tecnología"],
-                baseImage: "https://placehold.co/350x450/87CEEB/000000?text=Sol+(M)",
-                validClothes: ["CLOTH002", "CLOTH004", "CLOTH006"]
+                preferences: ["hippie", "verde", "amarillo"],
+                baseImage: "images/P2_base.png",
+                validClothes: ["camiseta_01", "pendientes_01", "pendientes_02", "vestido_01", "vestido_02"]
             },
             "CHAR003": {
                 id: "CHAR003",
@@ -353,46 +353,60 @@
         };
 
         const clothes = {
-            "CLOTH001": {
-                id: "CLOTH001",
+            "camiseta_01": {
+                id: "camiseta_01",
                 name: "Camiseta Roja",
                 sizes: {
-                    "S": "https://placehold.co/300x400/FF0000/FFFFFF?text=Camiseta+Roja+(S)",
-                    "M": "https://placehold.co/350x450/FF0000/FFFFFF?text=Camiseta+Roja+(M)",
+                    "S": "images/P1_camiseta_01.png",
+                    "M": "images/P2_camiseta_01.png",
                     "L": "https://placehold.co/400x500/FF0000/FFFFFF?text=Camiseta+Roja+(L)",
                     "XL": "https://placehold.co/450x550/FF0000/FFFFFF?text=Camiseta+Roja+(XL)"
                 },
                 points: {
-                    "arte": 10,
-                    "música": 5,
-                    "naturaleza": 8,
-                    "deportes": 3,
-                    "aventura": 2,
-                    "tecnología": 1,
-                    "ciencia": 7,
-                    "lectura": 6,
-                    "astronomía": 9
+                   "azul": 0,
+                    "rojo": 20,
+                    "marron": 0,
+                    "verde": 0,
+                    "amarillo": 0,
+                    "casual": 20,
+                    "elegante": 0,
+                    "hippie": 0,
+                    "lila": 0,
+                    "rosa": 0,
+                    "gotico": 0,
+                    "colorido": 0,
+                    "pastel": 0,
+                    "cuqui": 0,
+                    "deportivo": 0,
+                    "oversize": 0
                 }
             },
-            "CLOTH002": {
-                id: "CLOTH002",
-                name: "Pantalón Azul",
+            "camiseta_02": {
+                id: "camiseta_02",
+                name: "Camiseta Azul",
                 sizes: {
-                    "S": "https://placehold.co/300x400/0000FF/FFFFFF?text=Pantalón+Azul+(S)",
-                    "M": "https://placehold.co/350x450/0000FF/FFFFFF?text=Pantalón+Azul+(M)",
+                    "S": "images/P1_camiseta_02.png",
+                    "M": "images/P2_camiseta_02.png",
                     "L": "https://placehold.co/400x500/0000FF/FFFFFF?text=Pantalón+Azul+(L)",
                     "XL": "https://placehold.co/450x550/0000FF/FFFFFF?text=Pantalón+Azul+(XL)"
                 },
                 points: {
-                    "arte": 2,
-                    "música": 3,
-                    "naturaleza": 5,
-                    "deportes": 10,
-                    "aventura": 8,
-                    "tecnología": 7,
-                    "ciencia": 4,
-                    "lectura": 1,
-                    "astronomía": 6
+                    "azul": 20,
+                    "rojo": 0,
+                    "marron": 0,
+                    "verde": 0,
+                    "amarillo": 0,
+                    "casual": 0,
+                    "elegante": 20,
+                    "hippie": 0,
+                    "lila": 0,
+                    "rosa": 0,
+                    "gotico": 0,
+                    "colorido": 0,
+                    "pastel": 0,
+                    "cuqui": 0,
+                    "deportivo": 0,
+                    "oversize": 0
                 }
             },
             "CLOTH003": {
