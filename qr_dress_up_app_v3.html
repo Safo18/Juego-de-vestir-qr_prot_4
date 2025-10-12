@@ -72,14 +72,20 @@ button:active {transform:translateY(1px);}
 <script>
 // Datos de ejemplo con descripción editable
 const characters = {
-"P1":{id:"P1",name:"Luna",size:"S",validClothes:["camiseta_01","camiseta_02"],baseImage:"IMAGES/P1_base.png", description:"Le gusta el rojo y el estilo casual."},
-"P2":{id:"P2",name:"Sol",size:"M",validClothes:["camiseta_01","CLOTH004"],baseImage:"IMAGES/P2_base.png", description:"Prefiere colores verdes y estilo hippie."}
+"P1":{id:"P1",name:"Luna",size:"S",validClothes:["camiseta_01","falda_02","vestido_01_marron","pendientes_01","pendientes_02"],baseImage:"IMAGES/P1_base.png", description:"Le gusta el rojo y el estilo casual."},
+"P2":{id:"P2",name:"Sol",size:"M",validClothes:["camiseta_01","pendientes_01","pendientes_02","vestido_01_verde"],baseImage:"IMAGES/P2_base.png", description:"Prefiere colores verdes o amarillos y el estilo hippie."}
 };
 
 const clothes = {
-"camiseta_01":{id:"camiseta_01",name:"Camiseta Roja",sizes:{S:"IMAGES/P1_camiseta_01.png",M:"IMAGES/P2_camiseta_01.png"}},
-"camiseta_02":{id:"camiseta_02",name:"Camiseta Azul",sizes:{S:"IMAGES/P1_camiseta_02.png",M:"IMAGES/P2_camiseta_02.png"}},
-"CLOTH004":{id:"CLOTH004",name:"Chaqueta Negra",sizes:{S:"IMAGES/CLOTH004_S.png",M:"IMAGES/CLOTH004_M.png"}}
+"camiseta_01":{id:"camiseta_01",name:"camiseta Roja",sizes:{S:"IMAGES/P1_camiseta_01.png",M:"IMAGES/P2_camiseta_01.png"}},
+"camiseta_02":{id:"camiseta_02",name:"camiseta Azul",sizes:{S:"IMAGES/P1_camiseta_02.png",M:"IMAGES/P2_camiseta_02.png"}},
+"falda_01":{id:"falda_01",name:"falda rosa elegante",sizes:{S:"IMAGES/P1_falda_01.png",M:"IMAGES/P1_falda_01.png"}},
+"falda_02":{id:"falda_02",name:"falda lila casual",sizes:{S:"IMAGES/P1_falda_02.png",M:"IMAGES/P1_falda_02.png"}},
+"vestido_01_marron":{id:"vestido_01_marron",name:"vestido marron casual",sizes:{S:"IMAGES/P1_vestido_01.png",M:"IMAGES/P1_vestido_01.png"}},
+"vestido_01_verde":{id:"vestido_01_verde",name:"vestido verde hippie",sizes:{S:"IMAGES/P2_vestido_01.png",M:"IMAGES/P2_vestido_01.png"}},
+"vestido_02":{id:"vestido_02",name:"vestido rosa elegante",sizes:{S:"IMAGES/P2_vestido_02.png",M:"IMAGES/P2_vestido_02.png"}},
+"pendientes_01":{id:"pendientes_01",name:"pendientes amarillos",sizes:{S:"IMAGES/P2_pendientes_01.png",M:"P2_pendientes_01"}},
+"pendientes_02":{id:"pendientes_02",name:"pendientes verdes",sizes:{S:"IMAGES/P2_pendientes_02.png",M:"P2_pendientes_02"}}
 };
 
 // DOM
