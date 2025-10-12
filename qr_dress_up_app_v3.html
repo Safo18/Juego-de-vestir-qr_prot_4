@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Juego de Vestir Personajes</title>
+<title>Dress up queer!</title>
 
 <!-- Librerías -->
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -32,14 +32,13 @@ button:active {transform:translateY(1px);}
 .status-message {text-align:center; padding:15px; border-radius:10px; font-weight:bold; min-height:20px;}
 .success {background: rgba(46,204,113,0.3); border:1px solid #2ecc71;}
 .error {background: rgba(231,76,60,0.3); border:1px solid #e74c3c;}
-.instructions {max-width:800px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius:15px; padding:20px; margin-top:20px; box-shadow:0 8px 32px rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.18);}
-@media (max-width:768px){.app-container{flex-direction:column;} h1{font-size:2rem;}}
+.character-description {margin-top:10px; text-align:center; font-style:italic;}
 </style>
 </head>
 <body>
 <header>
-<h1>Juego de Vestir Personajes</h1>
-<p class="subtitle">Escanea códigos QR para vestir a los personajes con prendas correctas</p>
+<h1>Dress up queer!</h1>
+<p class="subtitle">¡Viste a tu personaje!</p>
 </header>
 
 <div class="app-container">
@@ -61,7 +60,7 @@ button:active {transform:translateY(1px);}
 </div>
 <div class="character-info">
 <div><strong>Nombre:</strong> <span id="character-name">-</span></div>
-<div><strong>Prendas:</strong> <span id="clothing-count">0</span></div>
+<div class="character-description" id="character-description">-</div>
 </div>
 <div id="game-result" class="status-message hidden"></div>
 <div id="download-btn-container">
@@ -70,23 +69,11 @@ button:active {transform:translateY(1px);}
 </section>
 </div>
 
-<section class="instructions">
-<h2>Instrucciones del Juego</h2>
-<ol>
-<li>Presiona "Escanear QR" para iniciar la cámara y escanear un personaje o prenda.</li>
-<li>Tras escanear, la cámara se detendrá automáticamente.</li>
-<li>Presiona "Escanear QR" de nuevo para escanear otra prenda.</li>
-<li>Presiona "Comprobar Outfit" para validar si las prendas son correctas.</li>
-<li>Usa "Reiniciar Juego" para comenzar de nuevo.</li>
-<li>Puedes descargar la imagen final con "Descargar Imagen".</li>
-</ol>
-</section>
-
 <script>
-// Datos de ejemplo
+// Datos de ejemplo con descripción editable
 const characters = {
-"P1":{id:"P1",name:"Luna",size:"S",validClothes:["camiseta_01","camiseta_02"],baseImage:"IMAGES/P1_base.png"},
-"P2":{id:"P2",name:"Sol",size:"M",validClothes:["camiseta_01","CLOTH004"],baseImage:"IMAGES/P2_base.png"}
+"P1":{id:"P1",name:"Luna",size:"S",validClothes:["camiseta_01","camiseta_02"],baseImage:"IMAGES/P1_base.png", description:"Le gusta el rojo y el estilo casual."},
+"P2":{id:"P2",name:"Sol",size:"M",validClothes:["camiseta_01","CLOTH004"],baseImage:"IMAGES/P2_base.png", description:"Prefiere colores verdes y estilo hippie."}
 };
 
 const clothes = {
@@ -103,7 +90,7 @@ const downloadBtn = document.getElementById('download-btn');
 const scanStatus = document.getElementById('scan-status');
 const characterBase = document.getElementById('character-base');
 const characterName = document.getElementById('character-name');
-const clothingCount = document.getElementById('clothing-count');
+const characterDescription = document.getElementById('character-description');
 const gameResult = document.getElementById('game-result');
 const characterDisplay = document.querySelector('.character-display');
 
@@ -120,8 +107,8 @@ currentCharacter=characters[decodedText];
 characterBase.src=currentCharacter.baseImage;
 characterBase.classList.remove('hidden');
 characterName.textContent=currentCharacter.name;
+characterDescription.textContent=currentCharacter.description;
 scannedClothes=[];
-clothingCount.textContent=0;
 document.querySelectorAll('.clothing-layer').forEach(l=>l.remove());
 gameResult.classList.add('hidden');
 scanStatus.textContent=`Personaje seleccionado: ${currentCharacter.name}`;
@@ -130,7 +117,6 @@ scanStatus.className='status-message success';
 if(!currentCharacter){scanStatus.textContent="Primero escanea un personaje"; scanStatus.className='status-message error'; return;}
 const cloth=clothes[decodedText];
 scannedClothes.push(cloth);
-clothingCount.textContent=scannedClothes.length;
 const img=document.createElement('img');
 img.src=cloth.sizes[currentCharacter.size]||cloth.sizes["M"];
 img.alt=cloth.name;
@@ -182,7 +168,7 @@ scannedClothes=[];
 characterBase.classList.add('hidden');
 characterBase.src='';
 characterName.textContent="-";
-clothingCount.textContent=0;
+characterDescription.textContent="-";
 document.querySelectorAll('.clothing-layer').forEach(l=>l.remove());
 gameResult.classList.add('hidden');
 scanStatus.textContent="Escanea un personaje para comenzar";
