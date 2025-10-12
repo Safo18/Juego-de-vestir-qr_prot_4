@@ -1,1 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dress up queer!</title>
 
+<!-- Librerías -->
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<style>
+* {margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;}
+body {background: linear-gradient(135deg,#6a11cb 0%,#2575fc 100%); min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:20px; color:white;}
+header {text-align:center; margin-bottom:20px; width:100%;}
+h1 {font-size:2.5rem; margin-bottom:10px; text-shadow:2px 2px 4px rgba(0,0,0,0.3);}
+.subtitle {font-size:1.2rem; opacity:0.9; max-width:600px; margin:0 auto;}
+.app-container {display:flex; flex-wrap:wrap; gap:20px; max-width:1200px; width:100%; justify-content:center;}
+.scanner-section, .character-section {flex:1; min-width:300px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius:15px; padding:20px; box-shadow:0 8px 32px rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.18);}
+.section-title {font-size:1.5rem; margin-bottom:15px; text-align:center;}
+#qr-reader {width:100%; border-radius:10px; overflow:hidden; margin-bottom:15px;}
+.controls, #download-btn-container {display:flex; flex-direction:column; gap:10px;}
+button {background: linear-gradient(to right,#ff416c,#ff4b2b); color:white; border:none; padding:12px 20px; border-radius:50px; font-size:1rem; font-weight:bold; cursor:pointer; transition: all 0.3s ease; box-shadow:0 4px 15px rgba(0,0,0,0.2);}
+button:hover {transform:translateY(-3px); box-shadow:0 6px 20px rgba(0,0,0,0.3);}
+button:active {transform:translateY(1px);}
+#reset-btn {background: linear-gradient(to right,#11998e,#38ef7d);}
+#check-btn {background: linear-gradient(to right,#4A00E0,#8E2DE2);}
+#scan-btn {background: linear-gradient(to right,#FF8C00,#FFA500);}
+#download-btn {background: linear-gradient(to right,#F7971E,#FFD200);}
+.character-display {flex:1; display:flex; justify-content:center; align-items:center; position:relative; min-height:500px; background: rgba(0,0,0,0.2); border-radius:10px; overflow:hidden;}
+.character-base, .clothing-layer {position:absolute; max-width:100%; max-height:100%;}
+.status-message {text-align:center; padding:15px; border-radius:10px; font-weight:bold; min-height:20px;}
+.success {background: rgba(46,204,113,0.3); border:1px solid #2ecc71;}
+.error {background: rgba(231,76,60,0.3); border:1px solid #e74c3c;}
+.character-description {margin-top:10px; text-align:center; font-style:italic;}
+.hidden {display:none;}
+</style>
+</head>
+<body>
+<header>
+<h1>Dress up queer!</h1>
+<p class="subtitle">¡Viste a tu personaje!</p>
+</header>
+
+<div class="app-container">
+<section class="scanner-section">
+<h2 class="section-title">Escáner QR</h2>
+<div id="qr-reader"></div>
+<div class="controls">
+<button id="scan-btn">Escanear QR</button>
+<button id="reset-btn">Reiniciar Juego</button>
+<button id="check-btn">Comprobar Outfit</button>
+</div>
+<div id="scan-status" class="status-message">Escanea un personaje para comenzar</div>
+</section>
+
+<section class="character-section">
+<h2 class="section-title">Personaje</h2>
+<div class="character-display">
+<img id="character-base" class="character-base hidden" alt="Personaje base">
+</div>
+<div class="character-info">
+<div><strong>Nombre:</strong> <span id="character-name">-</span></div>
+<div class="character-description" id="character-description">-</div>
+</div>
+<div id="game-result" class="status-message hidden"></div>
+<div id="download-btn-container">
+<button id="download-btn">Descargar Imagen</button>
+</div>
+</section>
+</div>
+
+<script>
+// Personajes de ejemplo
+const characters = {
+"P1": {id:"P1", name:"Luna", acceptedColors:["rojo","marrón"], acceptedStyles:["casual"], baseImage:"IMAGES/P1_base.png", description:"Le gusta el rojo y el estilo casual."},
+"P2": {id:"P2", name:"Sol", acceptedColors:["verde","amarillo"], acceptedStyles:["hippie"], baseImage:"IMAGES/P2_base.png", description:"Prefiere colores verdes o amarillos y el estilo hippie."}
+};
+
+// Prendas con color, estilo y versiones por personaje
+const clothes = {
+"camiseta_01": {color:"rojo", style:"casual", images:{P1:"IMAGES/P1_camiseta_01.png",P2:"IMAGES/P2_camiseta_01.png"}},
+"camiseta_02": {color:"azul", style:"elegante", images:{P1:"IMAGES/P1_camiseta_02.png",P2:"IMAGES/P2_camiseta_02.png"}},
+"falda_01": {color:"rosa", style:"elegante", images:{P1:"IMAGES/P1_falda_01.png",P2:"IMAGES/P2_falda_01.png"}},
+"falda_02": {color:"lila", style:"casual", images:{P1:"IMAGES/P1_falda_02.png",P2:"IMAGES/P2_falda_02.png"}},
+"vestido_01_marron": {color:"marrón", style:"casual", images:{P1:"IMAGES/P1_vestido_01.png",P2:"IMAGES/P2_vestido_01.png"}},
+"vestido_01_verde": {color:"verde", style:"hippie", images:{P1:"IMAGES/P1_vestido_01_verde.png",P2:"IMAGES/P2_vestido_01_verde.png"}},
+"vestido_02": {color:"rosa", style:"elegante", images:{P1:"IMAGES/P1_vestido_02.png",P2:"IMAGES/P2_vestido_02.png"}},
+"pendientes_01": {color:"amarillo", style:["casual","elegante"], images:{P1:"IMAGES/P1_pendientes_01.png",P2:"IMAGES/P2_pendientes_01.png"}},
+"pendientes_02": {color:"verde", style:"casual", images:{P1:"IMAGES/P1_pendientes_02.png",P2:"IMAGES/P2_pendientes_02.png"}}
+};
+
+// DOM
+const scanBtn = document.getElementById('scan-btn');
+const resetBtn = document.getElementById('reset-btn');
+const checkBtn = document.getElementById('check-btn');
+const downloadBtn = document.getElementById('download-btn');
+const scanStatus = document.getElementById('scan-status');
+const characterBase = document.getElementById('character-base');
+const characterName = document.getElementById('character-name');
+const characterDescription = document.getElementById('character-description');
+const gameResult = document.getElementById('game-result');
+const characterDisplay = document.querySelector('.character-display');
+
+let currentCharacter=null;
+let scannedClothes=[];
+let html5QrCode=null;
+let isScanning=false;
+
+// Escaneo
+function onScanSuccess(decodedText){
+  stopScanning();
+  if(characters[decodedText]){
+    currentCharacter=characters[decodedText];
+    characterBase.src=currentCharacter.baseImage;
+    characterBase.classList.remove('hidden');
+    characterName.textContent=currentCharacter.name;
+    characterDescription.textContent=currentCharacter.description;
+    scannedClothes=[];
+    document.querySelectorAll('.clothing-layer').forEach(l=>l.remove());
+    gameResult.classList.add('hidden');
+    scanStatus.textContent=`Personaje seleccionado: ${currentCharacter.name}`;
+    scanStatus.className='status-message success';
+  }else if(clothes[decodedText]){
+    if(!currentCharacter){scanStatus.textContent="Primero escanea un personaje"; scanStatus.className='status-message error'; return;}
+    const cloth=clothes[decodedText];
+    scannedClothes.push(cloth);
+    const img=document.createElement('img');
+    img.src=cloth.images[currentCharacter.id] || Object.values(cloth.images)[0];
+    img.alt=decodedText;
+    img.className='clothing-layer';
+    characterDisplay.appendChild(img);
+    scanStatus.textContent=`Prenda añadida: ${decodedText}`;
+    scanStatus.className='status-message success';
+  }else{
+    scanStatus.textContent="Código QR no reconocido";
+    scanStatus.className='status-message error';
+  }
+}
+
+// Iniciar escaneo
+scanBtn.addEventListener('click',()=>{
+  if(isScanning) return;
+  html5QrCode=new Html5Qrcode("qr-reader");
+  Html5Qrcode.getCameras().then(cameras=>{
+    if(cameras && cameras.length){
+      isScanning=true;
+      html5QrCode.start({facingMode:"environment"},{fps:10,qrbox:250},onScanSuccess);
+      scanStatus.textContent="Escanea un código QR";
+    }
+  }).catch(err=>{console.error(err); scanStatus.textContent="Error al acceder a la cámara"; scanStatus.className='status-message error';});
+});
+
+// Detener escaneo
+function stopScanning(){
+  if(html5QrCode && isScanning){
+    html5QrCode.stop().then(()=>{html5QrCode.clear(); isScanning=false; scanStatus.textContent+=" (Escaneo detenido)";}).catch(err=>console.error(err));
+  }
+}
+
+// Comprobar outfit
+checkBtn.addEventListener('click',()=>{
+  if(!currentCharacter){gameResult.textContent="Primero escanea un personaje"; gameResult.className='status-message error'; gameResult.classList.remove('hidden'); return;}
+  if(scannedClothes.length===0){gameResult.textContent="Añade al menos una prenda"; gameResult.className='status-message error'; gameResult.classList.remove('hidden'); return;}
+  const allValid=scannedClothes.every(c=>currentCharacter.acceptedColors.includes(c.color) && currentCharacter.acceptedStyles.includes(c.style));
+  if(allValid){gameResult.textContent="¡Acertaste! Outfit válido."; gameResult.className='status-message success';}
+  else{gameResult.textContent="Outfit incorrecto. Algunas prendas no corresponden."; gameResult.className='status-message error';}
+  gameResult.classList.remove('hidden');
+});
+
+// Reiniciar juego
+resetBtn.addEventListener('click',()=>{
+  stopScanning();
+  currentCharacter=null;
+  scannedClothes=[];
+  characterBase.classList.add('hidden');
+  characterBase.src='';
+  characterName.textContent="-";
+  characterDescription.textContent="-";
+  document.querySelectorAll('.clothing-layer').forEach(l=>l.remove());
+  gameResult.classList.add('hidden');
+  scanStatus.textContent="Escanea un personaje para comenzar";
+});
+
+// Descargar imagen
+downloadBtn.addEventListener('click',()=>{
+  html2canvas(characterDisplay).then(canvas=>{
+    const link=document.createElement('a');
+    link.download="mi_outfit.png";
+    link.href=canvas.toDataURL();
+    link.click();
+  });
+});
+</script>
+</body>
+</html>
