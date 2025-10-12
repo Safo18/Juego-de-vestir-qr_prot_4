@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba QR</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+    <h1>Prueba QR</h1>
+    <div id="qr-reader" style="width:300px;"></div>
+    <div id="scan-result">Esperando QR...</div>
+
+    <script>
+        const characters = {
+            "P1": { name: "Luna" },
+            "P2": { name: "Sol" }
+        };
+
+        const clothes = {
+            "camiseta_01": { name: "Camiseta Roja" }
+        };
+
+        function onScanSuccess(decodedText, decodedResult) {
+            const scanResultDiv = document.getElementById('scan-result');
+
+            if (characters[decodedText]) {
+                scanResultDiv.textContent = `Personaje detectado: ${characters[decodedText].name}`;
+            } else if (clothes[decodedText]) {
+                scanResultDiv.textContent = `Prenda detectada: ${clothes[decodedText].name}`;
+            } else {
+                scanResultDiv.textContent = `Código no reconocido: ${decodedText}`;
+            }
+        }
+
+        function onScanFailure(error) {
+            // No hacer nada, se llama muchas veces por frame
+        }
+
+        let html5QrcodeScanner = new Html5Qrcode("qr-reader");
+        html5QrcodeScanner.start(
+            { facingMode: "environment" }, 
+            { fps: 10, qrbox: 250 },
+            onScanSuccess,
+            onScanFailure
+        ).catch(err => console.error(err));
+    </script>
+</body>
+</html>
