@@ -1,0 +1,725 @@
+
+```html
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Vestir Personajes con QR - Versión 2</title>
+    <script src="https://cdn.rawgit.com/cozmo/jsQR/master/dist/jsQR.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            color: white;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .app-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .scanner-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .character-section {
+            flex: 1;
+            min-width: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        #video-container {
+            width: 100%;
+            height: 300px;
+            background: black;
+            border-radius: 10px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        #qr-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .scan-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .scan-line {
+            position: absolute;
+            top: 20%;
+            left: 10%;
+            width: 80%;
+            height: 2px;
+            background: #00ff00;
+            box-shadow: 0 0 10px #00ff00;
+            animation: scan 2s infinite linear;
+        }
+        
+        @keyframes scan {
+            0% { top: 20%; }
+            50% { top: 80%; }
+            100% { top: 20%; }
+        }
+        
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        button:active {
+            transform: translateY(1px);
+        }
+        
+        #reset-btn {
+            background: linear-gradient(to right, #11998e, #38ef7d);
+        }
+        
+        #check-btn {
+            background: linear-gradient(to right, #4A00E0, #8E2DE2);
+        }
+        
+        .character-display {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            min-height: 300px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .character-base {
+            position: absolute;
+            max-width: 80%;
+            max-height: 80%;
+        }
+        
+        .clothing-layer {
+            position: absolute;
+            max-width: 80%;
+            max-height: 80%;
+        }
+        
+        .character-info {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .info-item {
+            margin-bottom: 10px;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+        
+        .status-message {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-weight: bold;
+            min-height: 20px;
+        }
+        
+        .success {
+            background: rgba(46, 204, 113, 0.3);
+            border: 1px solid #2ecc71;
+        }
+        
+        .error {
+            background: rgba(231, 76, 60, 0.3);
+            border: 1px solid #e74c3c;
+        }
+        
+        .instructions {
+            max-width: 800px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        
+        .instructions h2 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .instructions ol {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Juego de Vestir Personajes</h1>
+        <p class="subtitle">Escanea códigos QR para vestir a los personajes con prendas que coincidan con sus preferencias</p>
+    </header>
+    
+    <div class="app-container">
+        <section class="scanner-section">
+            <h2 class="section-title">Escáner QR</h2>
+            <div id="video-container">
+                <video id="qr-video"></video>
+                <div class="scan-overlay">
+                    <div class="scan-line"></div>
+                </div>
+            </div>
+            <div class="controls">
+                <button id="start-camera">Iniciar Cámara</button>
+                <button id="reset-btn">Reiniciar Juego</button>
+                <button id="check-btn">Comprobar Outfit</button>
+            </div>
+            <div id="scan-status" class="status-message">
+                Presiona "Iniciar Cámara" para comenzar
+            </div>
+        </section>
+        
+        <section class="character-section">
+            <h2 class="section-title">Personaje</h2>
+            <div class="character-display">
+                <img id="character-base" class="character-base hidden" alt="Personaje base">
+                <!-- Las capas de ropa se añadirán aquí dinámicamente -->
+            </div>
+            <div class="character-info">
+                <div class="info-item">
+                    <span class="info-label">Nombre:</span>
+                    <span id="character-name">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Preferencias:</span>
+                    <span id="character-preferences">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Prendas:</span>
+                    <span id="clothing-count">0</span>
+                </div>
+            </div>
+            <div id="game-result" class="status-message hidden"></div>
+        </section>
+    </div>
+    
+    <section class="instructions">
+        <h2>Instrucciones del Juego</h2>
+        <ol>
+            <li>Presiona "Iniciar Cámara" para activar la cámara de tu dispositivo</li>
+            <li>Escanea primero el código QR de un personaje para seleccionarlo</li>
+            <li>Luego escanea códigos QR de prendas de vestir en el orden que desees</li>
+            <li>Las prendas se superpondrán automáticamente sobre el personaje</li>
+            <li>Cada prenda tiene puntos asociados según las preferencias del personaje</li>
+            <li>Cuando hayas terminado, presiona "Comprobar Outfit" para ver si acertaste</li>
+            <li>Usa "Reiniciar Juego" para comenzar una nueva partida</li>
+        </ol>
+    </section>
+
+    <script>
+        // Datos de ejemplo para personajes y ropa
+        const characters = {
+            "CHAR001": {
+                id: "CHAR001",
+                name: "Luna",
+                size: "S",
+                preferences: ["arte", "música", "naturaleza"],
+                baseImage: "https://placehold.co/300x400/FFB6C1/000000?text=Luna+(S)",
+                validClothes: ["CLOTH001", "CLOTH003", "CLOTH005"]
+            },
+            "CHAR002": {
+                id: "CHAR002",
+                name: "Sol",
+                size: "M",
+                preferences: ["deportes", "aventura", "tecnología"],
+                baseImage: "https://placehold.co/350x450/87CEEB/000000?text=Sol+(M)",
+                validClothes: ["CLOTH002", "CLOTH004", "CLOTH006"]
+            },
+            "CHAR003": {
+                id: "CHAR003",
+                name: "Estrella",
+                size: "L",
+                preferences: ["ciencia", "lectura", "astronomía"],
+                baseImage: "https://placehold.co/400x500/9370DB/000000?text=Estrella+(L)",
+                validClothes: ["CLOTH001", "CLOTH004", "CLOTH005"]
+            }
+        };
+
+        const clothes = {
+            "CLOTH001": {
+                id: "CLOTH001",
+                name: "Camiseta Roja",
+                sizes: {
+                    "S": "https://placehold.co/300x400/FF0000/FFFFFF?text=Camiseta+Roja+(S)",
+                    "M": "https://placehold.co/350x450/FF0000/FFFFFF?text=Camiseta+Roja+(M)",
+                    "L": "https://placehold.co/400x500/FF0000/FFFFFF?text=Camiseta+Roja+(L)",
+                    "XL": "https://placehold.co/450x550/FF0000/FFFFFF?text=Camiseta+Roja+(XL)"
+                },
+                points: {
+                    "arte": 10,
+                    "música": 5,
+                    "naturaleza": 8,
+                    "deportes": 3,
+                    "aventura": 2,
+                    "tecnología": 1,
+                    "ciencia": 7,
+                    "lectura": 6,
+                    "astronomía": 9
+                }
+            },
+            "CLOTH002": {
+                id: "CLOTH002",
+                name: "Pantalón Azul",
+                sizes: {
+                    "S": "https://placehold.co/300x400/0000FF/FFFFFF?text=Pantalón+Azul+(S)",
+                    "M": "https://placehold.co/350x450/0000FF/FFFFFF?text=Pantalón+Azul+(M)",
+                    "L": "https://placehold.co/400x500/0000FF/FFFFFF?text=Pantalón+Azul+(L)",
+                    "XL": "https://placehold.co/450x550/0000FF/FFFFFF?text=Pantalón+Azul+(XL)"
+                },
+                points: {
+                    "arte": 2,
+                    "música": 3,
+                    "naturaleza": 5,
+                    "deportes": 10,
+                    "aventura": 8,
+                    "tecnología": 7,
+                    "ciencia": 4,
+                    "lectura": 1,
+                    "astronomía": 6
+                }
+            },
+            "CLOTH003": {
+                id: "CLOTH003",
+                name: "Vestido Verde",
+                sizes: {
+                    "S": "https://placehold.co/300x400/008000/FFFFFF?text=Vestido+Verde+(S)",
+                    "M": "https://placehold.co/350x450/008000/FFFFFF?text=Vestido+Verde+(M)",
+                    "L": "https://placehold.co/400x500/008000/FFFFFF?text=Vestido+Verde+(L)",
+                    "XL": "https://placehold.co/450x550/008000/FFFFFF?text=Vestido+Verde+(XL)"
+                },
+                points: {
+                    "arte": 9,
+                    "música": 8,
+                    "naturaleza": 10,
+                    "deportes": 2,
+                    "aventura": 4,
+                    "tecnología": 1,
+                    "ciencia": 6,
+                    "lectura": 7,
+                    "astronomía": 5
+                }
+            },
+            "CLOTH004": {
+                id: "CLOTH004",
+                name: "Chaqueta Negra",
+                sizes: {
+                    "S": "https://placehold.co/300x400/000000/FFFFFF?text=Chaqueta+Negra+(S)",
+                    "M": "https://placehold.co/350x450/000000/FFFFFF?text=Chaqueta+Negra+(M)",
+                    "L": "https://placehold.co/400x500/000000/FFFFFF?text=Chaqueta+Negra+(L)",
+                    "XL": "https://placehold.co/450x550/000000/FFFFFF?text=Chaqueta+Negra+(XL)"
+                },
+                points: {
+                    "arte": 4,
+                    "música": 6,
+                    "naturaleza": 3,
+                    "deportes": 7,
+                    "aventura": 9,
+                    "tecnología": 10,
+                    "ciencia": 8,
+                    "lectura": 5,
+                    "astronomía": 2
+                }
+            },
+            "CLOTH005": {
+                id: "CLOTH005",
+                name: "Falda Amarilla",
+                sizes: {
+                    "S": "https://placehold.co/300x400/FFFF00/000000?text=Falda+Amarilla+(S)",
+                    "M": "https://placehold.co/350x450/FFFF00/000000?text=Falda+Amarilla+(M)",
+                    "L": "https://placehold.co/400x500/FFFF00/000000?text=Falda+Amarilla+(L)",
+                    "XL": "https://placehold.co/450x550/FFFF00/000000?text=Falda+Amarilla+(XL)"
+                },
+                points: {
+                    "arte": 8,
+                    "música": 9,
+                    "naturaleza": 7,
+                    "deportes": 4,
+                    "aventura": 5,
+                    "tecnología": 2,
+                    "ciencia": 3,
+                    "lectura": 10,
+                    "astronomía": 6
+                }
+            },
+            "CLOTH006": {
+                id: "CLOTH006",
+                name: "Sudadera Gris",
+                sizes: {
+                    "S": "https://placehold.co/300x400/808080/FFFFFF?text=Sudadera+Gris+(S)",
+                    "M": "https://placehold.co/350x450/808080/FFFFFF?text=Sudadera+Gris+(M)",
+                    "L": "https://placehold.co/400x500/808080/FFFFFF?text=Sudadera+Gris+(L)",
+                    "XL": "https://placehold.co/450x550/808080/FFFFFF?text=Sudadera+Gris+(XL)"
+                },
+                points: {
+                    "arte": 3,
+                    "música": 4,
+                    "naturaleza": 6,
+                    "deportes": 9,
+                    "aventura": 10,
+                    "tecnología": 8,
+                    "ciencia": 5,
+                    "lectura": 2,
+                    "astronomía": 1
+                }
+            }
+        };
+
+        // Elementos del DOM
+        const video = document.getElementById('qr-video');
+        const startCameraBtn = document.getElementById('start-camera');
+        const resetBtn = document.getElementById('reset-btn');
+        const checkBtn = document.getElementById('check-btn');
+        const scanStatus = document.getElementById('scan-status');
+        const characterBase = document.getElementById('character-base');
+        const characterName = document.getElementById('character-name');
+        const characterPreferences = document.getElementById('character-preferences');
+        const clothingCount = document.getElementById('clothing-count');
+        const gameResult = document.getElementById('game-result');
+        const characterDisplay = document.querySelector('.character-display');
+
+        // Estado del juego
+        let currentCharacter = null;
+        let scannedClothes = [];
+        let totalPoints = 0;
+        let stream = null;
+
+        // Inicializar la aplicación
+        function initApp() {
+            startCameraBtn.addEventListener('click', startCamera);
+            resetBtn.addEventListener('click', resetGame);
+            checkBtn.addEventListener('click', checkOutfit);
+            
+            // Mostrar instrucciones iniciales
+            scanStatus.textContent = "Presiona 'Iniciar Cámara' para comenzar";
+        }
+
+        // Iniciar la cámara para escanear QR
+        async function startCamera() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { facingMode: "environment" } 
+                });
+                video.srcObject = stream;
+                video.setAttribute("playsinline", true);
+                video.play();
+                
+                scanStatus.textContent = "Enfoca un código QR para escanear";
+                startQRScanning();
+            } catch (err) {
+                console.error("Error al acceder a la cámara:", err);
+                scanStatus.textContent = "Error al acceder a la cámara. Verifica permisos.";
+                scanStatus.className = "status-message error";
+            }
+        }
+
+        // Iniciar el escaneo de códigos QR
+        function startQRScanning() {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            
+            function scanFrame() {
+                if (video.readyState === video.HAVE_ENOUGH_DATA) {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    
+                    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = jsQR(imageData.data, imageData.width, imageData.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+                    
+                    if (code) {
+                        processQRCode(code.data);
+                    }
+                }
+                
+                requestAnimationFrame(scanFrame);
+            }
+            
+            scanFrame();
+        }
+
+        // Procesar el código QR escaneado
+        function processQRCode(data) {
+            // Verificar si es un personaje
+            if (characters[data]) {
+                selectCharacter(characters[data]);
+                scanStatus.textContent = `Personaje seleccionado: ${characters[data].name}`;
+                scanStatus.className = "status-message success";
+            } 
+            // Verificar si es una prenda
+            else if (clothes[data]) {
+                if (currentCharacter) {
+                    addClothing(clothes[data]);
+                    scanStatus.textContent = `Prenda añadida: ${clothes[data].name}`;
+                    scanStatus.className = "status-message success";
+                } else {
+                    scanStatus.textContent = "Primero debes escanear un personaje";
+                    scanStatus.className = "status-message error";
+                }
+            } 
+            // Código no reconocido
+            else {
+                scanStatus.textContent = "Código QR no reconocido";
+                scanStatus.className = "status-message error";
+            }
+            
+            // Limpiar mensaje después de 3 segundos
+            setTimeout(() => {
+                if (!scanStatus.classList.contains('error') && !scanStatus.classList.contains('success')) {
+                    scanStatus.textContent = "Enfoca un código QR para escanear";
+                }
+            }, 3000);
+        }
+
+        // Seleccionar un personaje
+        function selectCharacter(character) {
+            currentCharacter = character;
+            characterBase.src = character.baseImage;
+            characterBase.classList.remove('hidden');
+            
+            // Actualizar información del personaje (sin mostrar el tamaño)
+            characterName.textContent = character.name;
+            characterPreferences.textContent = character.preferences.join(', ');
+            clothingCount.textContent = '0';
+            
+            // Limpiar prendas anteriores
+            scannedClothes = [];
+            totalPoints = 0;
+            
+            // Limpiar capas de ropa
+            const clothingLayers = document.querySelectorAll('.clothing-layer');
+            clothingLayers.forEach(layer => layer.remove());
+            
+            // Ocultar resultado anterior
+            gameResult.classList.add('hidden');
+        }
+
+        // Añadir una prenda al personaje
+        function addClothing(cloth) {
+            if (!currentCharacter) return;
+            
+            scannedClothes.push(cloth);
+            clothingCount.textContent = scannedClothes.length;
+            
+            // Calcular puntos para este personaje
+            let clothPoints = 0;
+            currentCharacter.preferences.forEach(pref => {
+                if (cloth.points[pref]) {
+                    clothPoints += cloth.points[pref];
+                }
+            });
+            totalPoints += clothPoints;
+            
+            // Crear capa de ropa con el tamaño correcto (invisible para el usuario)
+            const clothLayer = document.createElement('img');
+            clothLayer.src = cloth.sizes[currentCharacter.size] || cloth.sizes['M'];
+            clothLayer.alt = cloth.name;
+            clothLayer.className = 'clothing-layer';
+            
+            // Añadir la capa al personaje
+            characterDisplay.appendChild(clothLayer);
+        }
+
+        // Comprobar el outfit
+        function checkOutfit() {
+            if (!currentCharacter) {
+                gameResult.textContent = "Primero debes escanear un personaje";
+                gameResult.className = "status-message error";
+                gameResult.classList.remove('hidden');
+                return;
+            }
+            
+            if (scannedClothes.length === 0) {
+                gameResult.textContent = "Añade al menos una prenda antes de comprobar";
+                gameResult.className = "status-message error";
+                gameResult.classList.remove('hidden');
+                return;
+            }
+            
+            // Verificar si todas las prendas son válidas para este personaje
+            let validOutfit = true;
+            let validCount = 0;
+            
+            scannedClothes.forEach(cloth => {
+                if (currentCharacter.validClothes.includes(cloth.id)) {
+                    validCount++;
+                } else {
+                    validOutfit = false;
+                }
+            });
+            
+            // Calcular porcentaje de acierto
+            const accuracy = Math.round((validCount / scannedClothes.length) * 100);
+            
+            // Mostrar resultado
+            if (validOutfit && scannedClothes.length >= 2) {
+                gameResult.textContent = `¡Outfit perfecto! Has conseguido ${totalPoints} puntos.`;
+                gameResult.className = "status-message success";
+            } else if (accuracy >= 50) {
+                gameResult.textContent = `Buen intento (${accuracy}% correcto). Puntos obtenidos: ${totalPoints}`;
+                gameResult.className = "status-message success";
+            } else {
+                gameResult.textContent = `Outfit incorrecto (${accuracy}% correcto). Puntos obtenidos: ${totalPoints}`;
+                gameResult.className = "status-message error";
+            }
+            
+            gameResult.classList.remove('hidden');
+        }
+
+        // Reiniciar el juego
+        function resetGame() {
+            // Detener la cámara
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            // Limpiar estado
+            currentCharacter = null;
+            scannedClothes = [];
+            totalPoints = 0;
+            
+            // Limpiar interfaz
+            characterBase.classList.add('hidden');
+            characterBase.src = '';
+            characterName.textContent = '-';
+            characterPreferences.textContent = '-';
+            clothingCount.textContent = '0';
+            
+            // Limpiar capas de ropa
+            const clothingLayers = document.querySelectorAll('.clothing-layer');
+            clothingLayers.forEach(layer => layer.remove());
+            
+            // Limpiar mensajes
+            scanStatus.textContent = "Presiona 'Iniciar Cámara' para comenzar";
+            scanStatus.className = "status-message";
+            gameResult.classList.add('hidden');
+            
+            // Detener el video
+            video.srcObject = null;
+        }
+
+        // Inicializar la aplicación cuando se cargue la página
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
+```
